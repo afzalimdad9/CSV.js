@@ -24,9 +24,9 @@ let streamOpts = {
   step: noop
 };
 
-let suite = new Benchmark.Suite();
+let suiteFunc = new Benchmark.Suite();
 
-suite.
+suiteFunc.
   // add("CSV.parse", () => {
   //   CSV.parse(csv, opts);
   // }).

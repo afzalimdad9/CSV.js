@@ -1,14 +1,12 @@
 /* jshint esversion: 6 */
 
-(function(root, factory) {
-  if (typeof define === "function" && define.amd) {
-    define([], factory);
-  } else if (typeof module === "object" && module.exports) {
+(function (root: any, factory) {
+  if (typeof module === "object" && module.exports) {
     module.exports = factory();
   } else {
     root.CSV = factory();
   }
-}(this, function() {
+}(this, function () {
   'use strict';
 
   /* =========================================
@@ -53,7 +51,7 @@
   }
 
   function map(collection, fn) {
-    let results = [];
+    let results: any[] = [];
     for (let i = 0, len = collection.length; i < len; i++) {
       results[i] = fn(collection[i], i);
     }
@@ -90,7 +88,7 @@
 
   function buildArrayConstructor(sample, cast) {
     let body = ["let row = new Array(" + sample.length + ")"];
-    let setter = (idx) =>  `row[${idx}] = `;
+    let setter = (idx) => `row[${idx}] = `;
     if (cast === true) {
       body = body.concat(map(sample, (val, idx) => setter(idx) + getterCast(val, idx)));
     } else {
@@ -193,19 +191,17 @@
       if (text[cur] === quoteMark) {
         while (cur++ < len) {
           if (text[cur] === quoteMark) {
-            if (text[cur+1] !== quoteMark) {
+            if (text[cur + 1] !== quoteMark) {
               break;
             }
             cur += 1;
           }
         }
         cur += 2;
-        n = text[cur+1];
+        n = text[cur + 1];
         if (n === newline[0]) {
-          eol = true;
-          if (newlineLen > 1 && text[cur+2] === newline[1]) cur++;
+          if (newline.length > 1 && text[cur + 2] === newline[1]) cur++;
         } else if (n === newline[1]) {
-          eol = true;
         }
 
         return text.slice(mark + 1, cur).replace(doubleQuoteRegex, quoteMark);
@@ -215,7 +211,6 @@
         let delta = 1;
         n = text[cur++];
         if (n === newline[0]) {
-          eol = true;
           if (text[cur] === newline[1]) {
             cur++;
             delta++;
@@ -296,7 +291,7 @@
       fn(encodeCells(opts.header, delimiter, newline));
     }
 
-    fn(encodeCells(row, delimiter));
+    fn(encodeCells(row, delimiter, newline));
 
     for (let cur = 1, lim = getLimit(opts.limit, coll.length); cur < lim; cur++) {
       row = [];
@@ -320,7 +315,7 @@
       fn = rows.push.bind(rows);
     }
 
-    opts = assign({}, STANDARD_DECODE_OPTS, opts);
+    opts = Object.assign({}, STANDARD_DECODE_OPTS, opts);
 
     if (!opts.delimiter || !opts.newline) {
       let limit = Math.min(48, Math.floor(text.length / 20), text.length);
@@ -329,7 +324,7 @@
     }
 
     return (text.indexOf(quoteMark) === -1 ? unsafeParse : safeParse)(text, opts, fn) &&
-           (rows.length > 0 ? rows : true);
+      (rows.length > 0 ? rows : true);
   }
 
   function write(coll, opts, fn) {
@@ -343,14 +338,14 @@
       fn = lines.push.bind(lines);
     }
 
-    opts = assign({}, STANDARD_ENCODE_OPTS, opts);
+    opts = Object.assign({}, STANDARD_ENCODE_OPTS, opts);
 
     if (opts.skip > 0) {
       coll = coll.slice(opts.skip);
     }
 
     return (getType(coll[0]) === "Array" ? encodeArrays : encodeObjects)(coll, opts, fn) &&
-           (lines.length > 0 ? lines.join(opts.newline) : true);
+      (lines.length > 0 ? lines.join(opts.newline) : true);
   }
 
   return {

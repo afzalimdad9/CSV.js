@@ -1,14 +1,12 @@
 /* jshint esversion: 6 */
 
-(function(root, factory) {
-  if (typeof define === "function" && define.amd) {
-    define([], factory);
-  } else if (typeof module === "object" && module.exports) {
+(function (root: any, factory) {
+  if (typeof module === "object" && module.exports) {
     module.exports = factory();
   } else {
     root.CSV = factory();
   }
-}(this, function() {
+}(this, function () {
   'use strict';
 
   /* =========================================
@@ -35,6 +33,7 @@
   var quoteMark = '"';
   var doubleQuoteMark = '""';
   var quoteRegex = /"/g;
+  var doubleQuoteRegex = /""/g;
 
   /* =========================================
    * Utility Functions =======================
@@ -52,7 +51,7 @@
   }
 
   function map(collection, fn) {
-    var results = [];
+    var results: any[] = [];
     for (var i = 0, len = collection.length; i < len; i++) {
       results[i] = fn(collection[i], i);
     }
@@ -100,7 +99,7 @@
   }
 
   function frequency(coll, needle, limit) {
-    if ( limit === void 0 ) limit = false;
+    if (limit === void 0) limit = false;
 
     var count = 0;
     var lastIndex = 0;
@@ -164,31 +163,81 @@
     return true;
   }
 
+  var iota = (function () {
+    var n = 0;
+    return function () { return n++; };
+  })();
+
   function safeParse(text, opts, fn) {
     var newline = opts.newline;
 
-    var lines = text.split(newline);
-    if (opts.skip > 0) {
-      lines.splice(opts.skip);
+    var skip = opts.skip;
+
+    var EOL = iota();
+    var EOF = iota();
+    var cur = 0;
+    var len = text.length;
+
+    var eolNext;
+
+    function nextToken() {
+      if (cur >= len) {
+        return EOF;
+      }
+      if (eolNext) {
+        eolNext = false;
+        return EOL;
+      }
+      var mark = cur;
+      var n;
+      if (text[cur] === quoteMark) {
+        while (cur++ < len) {
+          if (text[cur] === quoteMark) {
+            if (text[cur + 1] !== quoteMark) {
+              break;
+            }
+            cur += 1;
+          }
+        }
+        cur += 2;
+        n = text[cur + 1];
+        if (n === newline[0]) {
+          if (newline.length > 1 && text[cur + 2] === newline[1]) cur++;
+        }
+
+        return text.slice(mark + 1, cur).replace(doubleQuoteRegex, quoteMark);
+      }
+
+      while (cur < len) {
+        var delta = 1;
+        n = text[cur++];
+        if (n === newline[0]) {
+          if (text[cur] === newline[1]) {
+            cur++;
+            delta++;
+          }
+        }
+        return text.slice(mark, cur - delta);
+      }
+
+      return text.slice(mark);
     }
 
-    // for (let cur = 0, lim = getLimit(opts.limit, lines.length); cur < lim; cur++) {
-    //   let line = lines[cur];
-    //   if (frequency(line, quoteMark) % 2 !== 0) {
-    //     line += lines.splice(cur + 1, 1)[0];
-    //     cur -= 1;
-    //     continue;
-    //   }
-    //   let cells = line.split(delimiter);
-    //   for (let cell = 0, len = cells.length; cell < len; cell++) {
-    //     if (frequency(cell, quoteMark) % 2 !== 0) {
-    //       cell += cells.splice(cur + 1, 1)[0];
-    //       cell -= 1;
-    //       continue;
-    //     }
-    //   }
-    //   fn(cells);
-    // }
+    var row;
+    for (var token = nextToken(); token !== EOF; token = nextToken()) {
+      if (skip-- > 0) {
+        while (token !== EOL && token !== EOF) {
+          token = nextToken();
+        }
+      }
+
+      row = [];
+      while (token !== EOL && token !== EOF) {
+        row.push(token);
+        token = nextToken();
+      }
+      fn(row);
+    }
 
     return true;
   }
@@ -196,6 +245,9 @@
   function encodeCells(line, delimiter, newline) {
     var row = line.slice(0);
     for (var i = 0, len = row.length; i < len; i++) {
+      if (typeof row[i] !== "string") {
+        continue;
+      }
       if (row[i].indexOf(quoteMark) !== -1) {
         row[i] = row[i].replace(quoteRegex, doubleQuoteMark);
       }
@@ -240,7 +292,7 @@
       fn(encodeCells(opts.header, delimiter, newline));
     }
 
-    fn(encodeCells(row, delimiter));
+    fn(encodeCells(row, delimiter, newline));
 
     for (var cur = 1, lim = getLimit(opts.limit, coll.length); cur < lim; cur++) {
       row = [];
@@ -253,9 +305,7 @@
     return true;
   }
 
-  var CSV = {};
-
-  CSV.parse = function parse(text, opts, fn) {
+  function read(text, opts, fn) {
     var rows;
 
     if (getType(opts) === "Function") {
@@ -266,7 +316,7 @@
       fn = rows.push.bind(rows);
     }
 
-    opts = assign({}, STANDARD_DECODE_OPTS, opts);
+    opts = Object.assign({}, STANDARD_DECODE_OPTS, opts);
 
     if (!opts.delimiter || !opts.newline) {
       var limit = Math.min(48, Math.floor(text.length / 20), text.length);
@@ -275,10 +325,10 @@
     }
 
     return (text.indexOf(quoteMark) === -1 ? unsafeParse : safeParse)(text, opts, fn) &&
-           (rows.length > 0 ? rows : true);
-  };
+      (rows.length > 0 ? rows : true);
+  }
 
-  CSV.encode = function encode(coll, opts, fn) {
+  function write(coll, opts, fn) {
     var lines;
 
     if (getType(opts) === "Function") {
@@ -289,17 +339,22 @@
       fn = lines.push.bind(lines);
     }
 
-    opts = assign({}, STANDARD_ENCODE_OPTS, opts);
+    opts = Object.assign({}, STANDARD_ENCODE_OPTS, opts);
 
     if (opts.skip > 0) {
       coll = coll.slice(opts.skip);
     }
 
     return (getType(coll[0]) === "Array" ? encodeArrays : encodeObjects)(coll, opts, fn) &&
-           (lines.length > 0 ? lines.join(opts.newline) : true);
-  };
+      (lines.length > 0 ? lines.join(opts.newline) : true);
+  }
 
-  return CSV;
+  return {
+    read: read,
+    parse: read,
+    write: write,
+    encode: write
+  };
 }));
 
 
