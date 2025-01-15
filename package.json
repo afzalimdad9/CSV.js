@@ -1,6 +1,6 @@
 {
   "name": "@afzalimdad9/comma-separated-values",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Simple, blazing-fast CSV parsing/encoding in JavaScript. Full RFC 4180 compliance.",
   "main": "csv.js",
   "scripts": {
