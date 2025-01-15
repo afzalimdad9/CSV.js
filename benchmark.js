@@ -18,10 +18,6 @@ let opts = {
   delimiter: ","
 };
 
-let inferredStreamOpts = {
-  step: noop
-};
-
 let streamOpts = {
   newline: "\n",
   delimiter: ",",

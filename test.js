@@ -1,6 +1,5 @@
 var CSV = require("./csv");
 var assert = require("assert");
-var deepEqual = require("deep-equal");
 var fs = require("fs");
 
 var sets = ["marriage_census", "worldbank"];

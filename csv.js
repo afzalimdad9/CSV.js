@@ -165,7 +165,6 @@
   }
 
   function safeParse(text, opts, fn) {
-    var delimiter = opts.delimiter;
     var newline = opts.newline;
 
     var lines = text.split(newline);

@@ -1,5 +1,5 @@
 {
-  "name": "comma-separated-values",
+  "name": "@afzalimdad9/comma-separated-values",
   "version": "4.0.0",
   "description": "Simple, blazing-fast CSV parsing/encoding in JavaScript. Full RFC 4180 compliance.",
   "main": "csv.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/knrz/CSV.js"
+    "url": "https://github.com/afzalimdad9/CSV.js"
   },
   "keywords": [
     "csv",
@@ -23,12 +23,12 @@
     "tsv encode",
     "tsv rfc"
   ],
-  "author": "Kash Nouroozi <hi@knrz.co> (http://knrz.co/)",
+  "author": "Afzal Imdad <afzalimdad9@gmail.com> (http://afzalimdad9.vercel.app/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/knrz/CSV.js/issues"
+    "url": "https://github.com/afzalimdad9/CSV.js/issues"
   },
-  "homepage": "https://github.com/knrz/CSV.js",
+  "homepage": "https://github.com/afzalimdad9/CSV.js",
   "devDependencies": {
     "babyparse": "^0.4.6",
     "benchmark": "~2.1.0",

@@ -13,7 +13,7 @@ Installation
 
 Download `csv.min.js` and reference to it using your preferred method.
 
-If you use **Bower**, or **npm**, install the `comma-separated-values` package.
+If you use **Bower**, or **npm**, install the `@afzalimdad9/comma-separated-values` package.
 
 
 Instantiation
@@ -260,9 +260,3 @@ CSV.parse(data, options) // identical to `new CSV(data, options).parse()`
 CSV.encode(data, options) // identical to `new CSV(data, options).encode()`
 CSV.forEach(data, options, callback) // identical to `new CSV(data, options).forEach(callback)`
 ```
-
-
-Special Thanks
---------------
-
-- [Benjamin Gruenbaum](https://github.com/benjamingr) for helping improve performance.

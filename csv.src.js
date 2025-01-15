@@ -169,7 +169,6 @@
   })();
 
   function safeParse(text, opts, fn) {
-    let delimiter = opts.delimiter;
     let newline = opts.newline;
 
     let skip = opts.skip;
@@ -177,7 +176,6 @@
     let EOL = iota();
     let EOF = iota();
     let cur = 0;
-    let curLine = 0;
     let len = text.length;
 
     let eolNext;
